@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>Uniquedice- Info</title>
+  <link crossorigin="anonymous" media="all" rel="stylesheet" href="/static/css/simple.css" />
+</head>
+<body>
+  <div id="main">
+    <!-- Header & Navigation -->
+    <div id="header">
+      <div id="logo">
+        <div id="logo_text">
+          <h1><a href="/"><span class="logo_colour">Unique Dice</span></a></h1>
+          <h2>Notification...</h2>
+        </div>
+      </div>
+      <div id="menubar">
+        <ul id="menu">
+          <li><a href="/playgame">Play Game</a></li>
+          <li><a href="/whitelist/modify">Modify WhiteList</a></li>
+          <li><a href="/whitelist/checkwhitelist">Check Token</a></li>
+          <li><a href="/grant">Grant Delegate</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="site_content">
+        <h2>{{ .Subject}}</h2>
+        <p>{{ .Detail}}</p>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+      Copyright © 2018 @Ambr All Rights Reserved 
+    </div>
+  </div>
+</body>
+</html>
