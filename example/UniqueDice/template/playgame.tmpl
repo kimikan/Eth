@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <title>Uniquedice- play the game...</title>
+  <link crossorigin="anonymous" media="all" rel="stylesheet" href="/static/css/simple.css" />
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+  <div id="main">
+    <!-- Header & Navigation -->
+    <div id="header">
+      <div id="logo">
+        <div id="logo_text">
+          <h1><a href="/"><span class="logo_colour">Unique Dice</span></a></h1>
+          <h2>have fun, game start</h2>
+        </div>
+      </div>
+      <div id="menubar">
+        <ul id="menu">
+          <li><a href="/playgame" style="color:#aabbcc;font-size: large">Play Game</a></li>
+          <li><a href="/whitelist/modify">Modify WhiteList</a></li>
+          <li><a href="/whitelist/checkwhitelist" >Check Token</a></li>
+          <li><a href="/grant">Grant Delegate</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="site_content">
+        <h2>Play game(make sure metamask is installed)</h2>
+        Input the token address you want to bet:<br>
+        <input type="text" id="tokenaddr"><br>
+        How many tokens you want to bet:<br>
+        <input type="number" id="tokenamount"><br>
+        Bet rolls(2-96), if uniquedice get the number below this, you will get the money:<br>
+        <input type="number" id="rolls"  min="2" max="96"><br>
+        Win chance(the dynamic calculated win chance):<br>
+        <input type="text" id="winchance" value="0%" readonly="readonly"></input><br>
+        The tokens you will get once you win:<br>
+        <input type="text" id="payoutonwin" value="0.00" readonly="readonly"></input><br>
+        <input type="button" id="play" value="I want to play">
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+      Copyright © 2018 @Ambr All Rights Reserved 
+    </div>
+  </div>
+  
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+        function update() {
+            var rolls = $("#rolls").val();
+            if(rolls < 2) {
+                rolls = 2;
+            } else if(rolls > 96) {
+                rolls = 96;
+            }
+            $("#rolls").val(rolls);
+            //var tokenaddr = $("#tokenaddr").val();
+            var tokenamount = $("#tokenamount").val();
+            var accurateX = 98 * 10000 / (rolls - 1);
+            var payoutOnWin = accurateX * tokenamount / 10000;
+            $("#winchance").val((rolls-1)+"%");
+            $("#payoutonwin").val(payoutOnWin);
+        }
+        
+        $("#rolls").change(function() {
+            update();
+        });
+        $("#tokenamount").change(function() {
+            update();
+        });
+
+        $("#play").click(function(){
+            console.log($("#tokenaddr").val())
+            if($("#tokenamount").val() <= 0) {
+                alert("amount <= 0")
+            } else if (typeof window.web3 !== 'undefined') {
+                var web3 = window.web3;
+                if (!web3.isAddress($("#tokenaddr").val())) {
+                    alert("Invalid token address");
+                    return;
+                }
+
+                web3.eth.getAccounts((err, res) => {
+                    // set token source, destination and amount
+                    var contractAddress = "0x2ae9f6532799cadfd48ecd99beb3ae9deb396171";
+                    // Get abi array here https://etherscan.io/address/0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0#code
+                    // Get abi array here https://etherscan.io/address/0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0#code
+                    var abiArray = [{ "constant": false, "inputs": [{ "name": "tokenAddr", "type": "address" }, { "name": "rolls", "type": "uint64" }, { "name": "amount", "type": "uint64" }], "name": "delegatePlay", "outputs": [{ "name": "", "type": "uint64" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "tokenAddr", "type": "address" }], "name": "removeTokenFromWhiteList", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [{ "name": "tokenAddr", "type": "address" }], "name": "addTokenToWhiteList", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [{ "name": "", "type": "address" }], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": false, "inputs": [{ "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": true, "inputs": [{ "name": "tokenAddr", "type": "address" }], "name": "isTokenAllowed", "outputs": [{ "name": "", "type": "bool" }], "payable": false, "stateMutability": "view", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }]
+    
+                    var contract = web3.eth.contract(abiArray);
+                    // initiate contract for an address
+                    var myContractInstance = contract.at(contractAddress);
+                    var tokenaddr = $("#tokenaddr").val();
+                    var rolls = $("#rolls").val();
+                    var tokenamount = $("#tokenamount").val();
+                    console.log(tokenaddr, rolls, tokenamount);
+                    myContractInstance.delegatePlay(tokenaddr, rolls, tokenamount,
+                    { from: res[0] }, (res, err)=>{
+                        if (res == null) {
+                            alert("execute ok! ")
+                        } else if (typeof res !== "undefined" && res.toString().indexOf("denied")) {
+                            alert("user reject this request! ")
+                        } else {
+                            alert(res, err);
+                        }
+                    });
+                });
+            } else {
+                alert("No metamask installed")
+            }
+        });
+    })
+
+</script>
+</body>
+</html>
